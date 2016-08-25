@@ -1,11 +1,13 @@
 const gulp = require('gulp'),
 sass = require('gulp-sass'),
 autoprefixer = require('gulp-autoprefixer'),
-imagemin = require('imagemin');
-imageminJpegRecompress = require('imagemin-jpeg-recompress');
+imagemin = require('gulp-imagemin'),
+uglify = require('gulp-uglify'),
+cssmin = require('gulp-cssmin'),
+rename = require('gulp-rename');
 
-//CSS-SCSS
-  gulp.task('sass', ()=>
+//SCSS-CSS
+  gulp.task('sass', () =>
    gulp.src('./scss/*.scss')
    .pipe(sass({
      outputStyle:'compressed',
@@ -16,26 +18,28 @@ imageminJpegRecompress = require('imagemin-jpeg-recompress');
    }))
    .pipe(gulp.dest('./css'))
 );
-
+//COMPRIMIR IMAGEM
+  gulp.task('image', () =>
+   gulp.src('./img/*')
+   .pipe(imagemin())
+   .pipe(gulp.dest('./img'))
+);
+//UGLIFY
+  gulp.task('uglify', () =>
+   gulp.src('./js/*.js')
+   .pipe(uglify())
+   .pipe(gulp.dest('./js'))
+);
+//CSSMIN
+gulp.task('cssmin', function () {
+    gulp.src('./css/*.css')
+        .pipe(cssmin())
+        .pipe(rename({suffix: '.min'}))
+        .pipe(gulp.dest('./css'));
+});
 gulp.task('default', () => {
   gulp.watch('./scss/*.scss', ['sass']);
-});
-
-//imgCompress
- gulp.task('imagemin', () =>
-    gulp.src('./img/*')
-        .pipe(imagemin())
-        .pipe(gulp.dest('./img'))
-);
-gulp.task('default', () => {
-gulp.watch('./img/*', ['imagemin']);
-
-});
-
-imagemin(['img/*.jpg'], './img', {
-    plugins: [
-        imageminJpegRecompress()
-    ]
-}).then(() => {
-    console.log('Images optimized');
+  gulp.watch('./css/*.css', ['cssmin']);
+  gulp.watch('./js/*.js', ['uglify']);
+  gulp.watch('./img/*', ['image']);
 });
